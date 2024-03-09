@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  dnd-mongo:
+    container_name: dnd-mongo
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGODB_DATABASE: dnd_challenge
+    volumes:
+      - ./data/db:/data/db
+
+  dnd-node:
+    container_name: dnd-node
+    image: dnd-node:latest
+    build: .
+    command: [ "npm", "run", "start:dev" ]
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - dnd-mongo
