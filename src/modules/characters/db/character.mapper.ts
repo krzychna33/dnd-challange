@@ -1,9 +1,9 @@
 import { CharacterSchema } from './character.schema';
-import { Character, CharacterDefenseDefense } from '../domain/Character';
+import { Character } from '../domain/Character';
 import { ObjectId } from 'mongodb';
 import { EntityMapper } from '../../../libs/ddd/entity-mapper.interface';
-import { plainToInstance } from 'class-transformer';
-import { CharacterResponseDto } from '../dto/character.response.dto';
+import { DamageType } from '../domain/damage-type.enum';
+import { DefenseSkill } from '../domain/defense-skill.enum';
 
 export class CharacterMapper
   implements EntityMapper<CharacterSchema, Character>
@@ -17,8 +17,8 @@ export class CharacterMapper
         hitPoints: entitySchema.hitPoints,
         defenses: entitySchema.defenses.map((defense) => {
           return {
-            type: defense.type,
-            defense: defense.defense as CharacterDefenseDefense,
+            type: defense.type as DamageType,
+            defense: defense.defense as DefenseSkill,
           };
         }),
         temporaryHitPoints: entitySchema.temporaryHitPoints,

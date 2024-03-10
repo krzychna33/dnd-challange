@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  dnd-mongo-test:
+    container_name: dnd-mongo-test
+    image: mongo
+    ports:
+      - "27027:27017"
+    environment:
+      MONGODB_DATABASE: dnd_challenge_test
+    volumes:
+      - ./data-test/db:/data/db

@@ -7,13 +7,11 @@ import {
 import * as brivCharacter from '../../../static/briv.json';
 import { CharacterRepository } from './db/character.repository';
 import { CharacterDamageRequestDto } from './dto/character-damage.request.dto';
-import {
-  Character,
-  CharacterDefenseDefense,
-  CharacterProps,
-} from './domain/Character';
+import { Character } from './domain/Character';
 import { CharacterHealthRequestDto } from './dto/character-health.request.dto';
 import { CharacterAddTemporaryHpRequestDto } from './dto/character-add-temporary-hp.request.dto';
+import { DamageType } from './domain/damage-type.enum';
+import { DefenseSkill } from './domain/defense-skill.enum';
 
 @Injectable()
 export class CharactersService implements OnModuleInit {
@@ -36,13 +34,22 @@ export class CharactersService implements OnModuleInit {
       hitPoints: brivCharacter.hitPoints,
       defenses: brivCharacter.defenses.map((defense) => {
         return {
-          type: defense.type,
-          defense: defense.defense as CharacterDefenseDefense,
+          type: defense.type as DamageType,
+          defense: defense.defense as DefenseSkill,
         };
       }),
     });
 
     await this.characterRepository.create(newCharacter);
+  }
+
+  async getCharacter(name: string): Promise<Character> {
+    const character = await this.characterRepository.findOneByName(name);
+    if (!character) {
+      throw new NotFoundException();
+    }
+
+    return character;
   }
 
   async handleDamage(
@@ -61,7 +68,7 @@ export class CharactersService implements OnModuleInit {
     return character;
   }
 
-  async handleHealth(
+  async handleAddHealth(
     name: string,
     dto: CharacterHealthRequestDto,
   ): Promise<Character> {

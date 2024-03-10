@@ -1,8 +1,7 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CharacterNameParamDto } from './dto/character-name.param.dto';
 import { CharacterDamageRequestDto } from './dto/character-damage.request.dto';
 import { CharactersService } from './characters.service';
-import { CharacterMapper } from './db/character.mapper';
 import { plainToInstance } from 'class-transformer';
 import { CharacterResponseDto } from './dto/character.response.dto';
 import { CharacterHealthRequestDto } from './dto/character-health.request.dto';
@@ -10,10 +9,17 @@ import { CharacterAddTemporaryHpRequestDto } from './dto/character-add-temporary
 
 @Controller('characters')
 export class CharactersController {
-  constructor(
-    private readonly charactersService: CharactersService,
-    private readonly characterMapper: CharacterMapper,
-  ) {}
+  constructor(private readonly charactersService: CharactersService) {}
+
+  @Get('/:name')
+  async getCharacter(@Param() { name }: CharacterNameParamDto) {
+    const character = await this.charactersService.getCharacter(name);
+    return plainToInstance(CharacterResponseDto, {
+      id: character.id,
+      ...character.getProps(),
+    });
+  }
+
   @Post('/:name/damage')
   async handleDamage(
     @Param() { name }: CharacterNameParamDto,
@@ -27,11 +33,11 @@ export class CharactersController {
   }
 
   @Post('/:name/health')
-  async handleHealth(
+  async handleAddHealth(
     @Param() { name }: CharacterNameParamDto,
     @Body() dto: CharacterHealthRequestDto,
   ) {
-    const character = await this.charactersService.handleHealth(name, dto);
+    const character = await this.charactersService.handleAddHealth(name, dto);
     return plainToInstance(CharacterResponseDto, {
       id: character.id,
       ...character.getProps(),
@@ -39,7 +45,7 @@ export class CharactersController {
   }
 
   @Post('/:name/temporary-hp')
-  async handleTemporaryHp(
+  async handleAddTemporaryHp(
     @Param() { name }: CharacterNameParamDto,
     @Body() dto: CharacterAddTemporaryHpRequestDto,
   ) {

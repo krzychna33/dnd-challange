@@ -1,21 +1,13 @@
 import { AggregateRoot } from '../../../libs/ddd/aggregate-root.base';
 import { AggregateID } from '../../../libs/ddd/entity.base';
 import { ObjectId } from 'mongodb';
-
-export enum CharacterDefenseDefense {
-  IMMUNITY = 'immunity',
-  RESISTANCE = 'resistance',
-}
+import { DamageType } from './damage-type.enum';
+import { DefenseSkill } from './defense-skill.enum';
 
 export type CharacterDefense = {
-  type: string;
-  defense: CharacterDefenseDefense;
+  type: DamageType;
+  defense: DefenseSkill;
 };
-
-export enum CharacterDamageType {
-  FIRE = 'fire',
-  SLASHING = 'slashing',
-}
 
 export type CharacterProps = {
   name: string;
@@ -48,8 +40,8 @@ export class Character extends AggregateRoot<CharacterProps> {
     });
   }
 
-  takeDamage(type: CharacterDamageType, value: number) {
-    let damageToTake = value;
+  takeDamage(type: DamageType, value: number) {
+    let damageToTake = this.calculateDamageToTake(type, value);
 
     if (this.props.temporaryHitPoints >= damageToTake) {
       this.props.temporaryHitPoints -= damageToTake;
@@ -66,11 +58,39 @@ export class Character extends AggregateRoot<CharacterProps> {
     }
   }
 
+  private calculateDamageToTake(type: DamageType, value: number) {
+    const defensesApplicable = this.props.defenses.filter((defense) => {
+      return defense.type === type;
+    });
+
+    if (defensesApplicable.length === 0) {
+      return value;
+    }
+
+    const immunity = defensesApplicable.find(
+      (defense) => defense.defense === DefenseSkill.IMMUNITY,
+    );
+
+    if (immunity) {
+      return 0;
+    }
+
+    const resistance = defensesApplicable.find(
+      (defense) => defense.defense === DefenseSkill.RESISTANCE,
+    );
+
+    if (resistance) {
+      return value / 2;
+    }
+  }
+
   heal(value: number) {
     this.props.hitPoints += value;
   }
 
   addTemporaryHp(value: number) {
-    this.props.temporaryHitPoints = value;
+    if (this.props.temporaryHitPoints < value) {
+      this.props.temporaryHitPoints = value;
+    }
   }
 }

@@ -1,9 +1,10 @@
-import { CharacterDamageType } from '../domain/Character';
-import { IsEnum, IsNumber, IsPositive } from 'class-validator';
+import { IsEnum, IsNumber, IsPositive, IsString } from 'class-validator';
+import { DamageType } from '../domain/damage-type.enum';
 
 export class CharacterDamageRequestDto {
-  @IsEnum(Object.values(CharacterDamageType))
-  type: CharacterDamageType;
+  @IsEnum(Object.values(DamageType))
+  @IsString()
+  type: DamageType;
 
   @IsNumber()
   @IsPositive()

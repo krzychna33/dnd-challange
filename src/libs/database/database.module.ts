@@ -7,6 +7,7 @@ import { AppConfig } from '../config/app-config.type';
   imports: [
     MongooseModule.forRootAsync({
       useFactory: (config: ConfigService<AppConfig>) => {
+        console.log(config.get('DB_URL'));
         return { uri: config.get('DB_URL') };
       },
       inject: [ConfigService],

@@ -1,4 +1,14 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
+import { DamageType } from '../domain/damage-type.enum';
+import { DefenseSkill } from '../domain/defense-skill.enum';
+
+export class CharacterDefenseResponseDto {
+  @Expose()
+  type: DamageType;
+
+  @Expose()
+  defense: DefenseSkill;
+}
 
 @Exclude()
 export class CharacterResponseDto {
@@ -16,4 +26,8 @@ export class CharacterResponseDto {
 
   @Expose()
   temporaryHitPoints: number;
+
+  @Expose()
+  @Type(() => CharacterDefenseResponseDto)
+  defenses: CharacterDefenseResponseDto[];
 }
